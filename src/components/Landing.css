@@ -1,0 +1,339 @@
+/* =========================
+   LANDING PAGE
+========================= */
+
+.landing-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fbff, #eaf2ff);
+  overflow: hidden;
+}
+
+
+/* =========================
+   LEFT CONTENT
+========================= */
+
+.landing-content {
+  padding: 40px 30px;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 35px;
+}
+
+.logo span {
+  color: #0d6efd;
+}
+
+.landing-content h1 {
+  font-size: 52px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 25px;
+}
+
+.landing-content h1 span {
+  color: #0d6efd;
+}
+
+.landing-description {
+  max-width: 520px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #6b7280;
+  margin-bottom: 30px;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.landing-buttons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.landing-buttons a {
+  text-decoration: none;
+}
+
+.signup-btn {
+  border: none !important;
+  background: #0d6efd !important;
+  padding: 12px 28px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.signup-btn:hover {
+  background: #0b5ed7 !important;
+}
+
+.login-btn {
+  background: white !important;
+  color: #0d6efd !important;
+  border: 2px solid #0d6efd !important;
+  padding: 10px 30px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.login-btn:hover {
+  background: #0d6efd !important;
+  color: white !important;
+}
+
+.bottom-text {
+  margin-top: 25px;
+  color: #888;
+  font-size: 14px;
+}
+
+
+/* =========================
+   RIGHT SECTION
+========================= */
+
+.landing-image-section {
+  min-height: 600px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =========================
+   MAIN CIRCLE
+========================= */
+
+.main-circle {
+  width: 390px;
+  height: 390px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #0d6efd,
+    #6f42c1
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 25px 60px rgba(13, 110, 253, 0.25);
+}
+
+.circle-content {
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.circle-content span {
+  font-size: 65px;
+  margin-bottom: 10px;
+}
+
+.circle-content h3 {
+  font-size: 28px;
+  color: #0d6efd;
+  margin-bottom: 5px;
+}
+
+.circle-content p {
+  color: #777;
+  font-size: 13px;
+}
+
+
+/* =========================
+   SOCIAL CARDS
+========================= */
+
+.social-card {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 210px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.social-card .avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #eaf2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.social-card strong {
+  display: block;
+  font-size: 14px;
+  color: #333;
+}
+
+.social-card small {
+  display: block;
+  color: #888;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+
+/* Card Positions */
+
+.card-one {
+  top: 100px;
+  left: 5px;
+}
+
+.card-two {
+  top: 180px;
+  right: -10px;
+}
+
+.card-three {
+  bottom: 100px;
+  right: 25px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 991px) {
+
+  .landing-content {
+    text-align: center;
+    padding-top: 60px;
+  }
+
+  .landing-content h1 {
+    font-size: 42px;
+  }
+
+  .landing-description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .landing-buttons {
+    justify-content: center;
+  }
+
+  .landing-image-section {
+    min-height: 500px;
+  }
+
+  .card-one {
+    left: 10%;
+  }
+
+  .card-two {
+    right: 5%;
+  }
+
+  .card-three {
+    right: 10%;
+  }
+}
+
+
+@media (max-width: 576px) {
+
+  .landing-content {
+    padding: 30px 15px;
+  }
+
+  .logo {
+    font-size: 27px;
+    margin-bottom: 25px;
+  }
+
+  .landing-content h1 {
+    font-size: 34px;
+  }
+
+  .landing-description {
+    font-size: 15px;
+  }
+
+  .landing-buttons {
+    flex-direction: column;
+  }
+
+  .landing-buttons a,
+  .landing-buttons button {
+    width: 100%;
+  }
+
+  .landing-image-section {
+    min-height: 400px;
+    margin-top: 20px;
+  }
+
+  .main-circle {
+    width: 280px;
+    height: 280px;
+  }
+
+  .circle-content {
+    width: 195px;
+    height: 195px;
+  }
+
+  .circle-content span {
+    font-size: 45px;
+  }
+
+  .circle-content h3 {
+    font-size: 22px;
+  }
+
+  .social-card {
+    min-width: 170px;
+    padding: 8px;
+  }
+
+  .social-card .avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+
+  .card-one {
+    top: 20px;
+    left: 0;
+  }
+
+  .card-two {
+    top: 100px;
+    right: 0;
+  }
+
+  .card-three {
+    bottom: 20px;
+    right: 0;
+  }
+}
