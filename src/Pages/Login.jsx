@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const {
@@ -21,6 +22,7 @@ const Login = () => {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
+const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -46,6 +48,7 @@ const Login = () => {
       });
 
       reset();
+      navigate("/home");
 
     } catch (error) {
       console.log(
