@@ -28,7 +28,7 @@ const Signup = () => {
       formData.append("avatar", data.avatar[0]);
 
       const response = await axios.post(
-        "http://localhost:5000/api/v1/users/register",
+        "https://helpful-inspiration-production-1b39.up.railway.app/api/v1/users/register",
         formData,
         {
           withCredentials: true,

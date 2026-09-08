@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/v1/posts";
+const API = "https://helpful-inspiration-production-1b39.up.railway.app/api/v1/posts";
 
 // GET ALL POSTS
 export const getAllPosts = async () => {
