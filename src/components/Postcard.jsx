@@ -1,143 +1,268 @@
 import React, { useState } from "react";
-
-import { Card, Button, Form, Modal } from "react-bootstrap";
-
-import { likeUnlikePost, addComment, deletePost } from "../services/postApi";
+import { Card, Button, Form } from "react-bootstrap";
+import {
+    likeUnlikePost,
+    addComment,
+    deletePost
+} from "../services/postApi";
 
 const PostCard = ({ post, currentUser, onDelete }) => {
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleLike = async () => {
-    try {
-      await likeUnlikePost(post._id);
+    const [comment, setComment] = useState("");
+    const [loading, setLoading] = useState(false);
 
-      window.location.reload();
-    } catch (error) {
-      alert(error.response?.data?.message || "Like failed");
-    }
-  };
+    // Local post state
+    const [currentPost, setCurrentPost] = useState(post);
 
-  const handleComment = async (e) => {
-    e.preventDefault();
+    // LIKE / UNLIKE
+    const handleLike = async () => {
+        try {
+            const response = await likeUnlikePost(currentPost._id);
 
-    if (!comment.trim()) return;
+            console.log("LIKE RESPONSE:", response);
 
-    try {
-      setLoading(true);
+            // Agar backend updated post return karta hai
+            if (response?.data) {
+                setCurrentPost(response.data);
+            } else {
+                // Agar backend post return nahi karta
+                setCurrentPost((prev) => {
+                    const alreadyLiked = prev.likes?.some(
+                        (user) => user._id === currentUser?._id
+                    );
 
-      await addComment(post._id, comment);
+                    return {
+                        ...prev,
+                        likes: alreadyLiked
+                            ? prev.likes.filter(
+                                (user) =>
+                                    user._id !== currentUser?._id
+                            )
+                            : [
+                                ...(prev.likes || []),
+                                currentUser
+                            ],
+                    };
+                });
+            }
 
-      setComment("");
+        } catch (error) {
+            console.error("LIKE ERROR:", error);
 
-      window.location.reload();
-    } catch (error) {
-      alert(error.response?.data?.message || "Comment failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+            alert(
+                error?.response?.data?.message ||
+                "Like failed"
+            );
+        }
+    };
 
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this post?",
+    // ADD COMMENT
+    const handleComment = async (e) => {
+        e.preventDefault();
+
+        if (!comment.trim()) return;
+
+        try {
+            setLoading(true);
+
+            const response = await addComment(
+                currentPost._id,
+                comment
+            );
+
+            console.log("COMMENT RESPONSE:", response);
+
+            setComment("");
+
+            // Backend updated post return karta ho
+            if (response?.data) {
+                setCurrentPost(response.data);
+            } else {
+                // Fallback: locally comment add
+                const newComment = {
+                    _id: Date.now(),
+                    name:
+                        currentUser?.name ||
+                        currentUser?.fullName ||
+                        currentUser?.username ||
+                        "User",
+                    comment: comment,
+                };
+
+                setCurrentPost((prev) => ({
+                    ...prev,
+                    comments: [
+                        ...(prev.comments || []),
+                        newComment,
+                    ],
+                }));
+            }
+
+        } catch (error) {
+            console.error("COMMENT ERROR:", error);
+
+            alert(
+                error?.response?.data?.message ||
+                "Comment failed"
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // DELETE POST
+    const handleDelete = async () => {
+
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this post?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+
+            await deletePost(currentPost._id);
+
+            onDelete(currentPost._id);
+
+        } catch (error) {
+
+            alert(
+                error?.response?.data?.message ||
+                "Delete failed"
+            );
+        }
+    };
+
+    const isLiked = currentPost.likes?.some(
+        (user) =>
+            user._id === currentUser?._id
     );
 
-    if (!confirmDelete) return;
+    const isOwner =
+        currentPost.owner?._id === currentUser?._id;
 
-    try {
-      await deletePost(post._id);
+    return (
+        <Card className="mb-4 shadow-sm">
 
-      onDelete(post._id);
-    } catch (error) {
-      alert(error.response?.data?.message || "Delete failed");
-    }
-  };
+            <Card.Body>
 
-  const isLiked = post.likes?.some((user) => user._id === currentUser?._id);
+                {/* USER */}
+                <div className="d-flex justify-content-between mb-3">
 
-  const isOwner = post.owner?._id === currentUser?._id;
+                    <div>
+                        <strong>
+                            {currentPost.owner?.name}
+                        </strong>
 
-  return (
-    <Card className="mb-4 shadow-sm">
-      <Card.Body>
-        {/* USER */}
+                        <br />
 
-        <div className="d-flex justify-content-between mb-3">
-          <div>
-            <strong>{post.owner?.name}</strong>
+                        <small className="text-muted">
+                            {currentPost.owner?.email}
+                        </small>
+                    </div>
 
-            <br />
+                    {isOwner && (
+                        <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={handleDelete}
+                        >
+                            Delete
+                        </Button>
+                    )}
 
-            <small className="text-muted">{post.owner?.email}</small>
-          </div>
+                </div>
 
-          {isOwner && (
-            <Button variant="outline-danger" size="sm" onClick={handleDelete}>
-              Delete
-            </Button>
-          )}
-        </div>
+                {/* IMAGE */}
+                <Card.Img
+                    src={currentPost.post?.secure_url}
+                    alt="Post"
+                    style={{
+                        width: "100%",
+                        height: "auto",
+                        objectFit: "contain",
+                    }}
+                />
 
-        {/* IMAGE */}
-        <Card.Img
-          src={post.post.secure_url}
-          alt="Post"
-          style={{
-            width: "100%",
-            height: "auto",
-            objectFit: "contain",
-          }}
-        />
+                {/* CAPTION */}
+                <Card.Text className="mt-3">
+                    {currentPost.caption}
+                </Card.Text>
 
-        {/* CAPTION */}
+                {/* LIKE */}
+                <div className="mb-3">
 
-        <Card.Text className="mt-3">{post.caption}</Card.Text>
+                    <Button
+                        variant={
+                            isLiked
+                                ? "danger"
+                                : "outline-danger"
+                        }
+                        onClick={handleLike}
+                    >
+                        ❤️ {currentPost.likes?.length || 0}
+                    </Button>
 
-        {/* LIKE */}
+                </div>
 
-        <div className="mb-3">
-          <Button
-            variant={isLiked ? "danger" : "outline-danger"}
-            onClick={handleLike}
-          >
-            ❤️ {post.likes?.length || 0}
-          </Button>
-        </div>
+                {/* COMMENTS */}
+                <hr />
 
-        {/* COMMENTS */}
+                <h6>Comments</h6>
 
-        <hr />
+                {currentPost.comments?.map(
+                    (item, index) => (
+                        <div
+                            key={
+                                item._id || index
+                            }
+                            className="border rounded p-2 mb-2"
+                        >
+                            <strong>
+                                {item.name}
+                            </strong>
 
-        <h6>Comments</h6>
+                            <p className="mb-0">
+                                {item.comment}
+                            </p>
+                        </div>
+                    )
+                )}
 
-        {post.comments?.map((item, index) => (
-          <div key={item._id || index} className="border rounded p-2 mb-2">
-            <strong>{item.name}</strong>
+                {/* ADD COMMENT */}
+                <Form onSubmit={handleComment}>
 
-            <p className="mb-0">{item.comment}</p>
-          </div>
-        ))}
+                    <div className="d-flex gap-2">
 
-        {/* ADD COMMENT */}
+                        <Form.Control
+                            type="text"
+                            placeholder="Write a comment..."
+                            value={comment}
+                            onChange={(e) =>
+                                setComment(
+                                    e.target.value
+                                )
+                            }
+                        />
 
-        <Form onSubmit={handleComment}>
-          <div className="d-flex gap-2">
-            <Form.Control
-              type="text"
-              placeholder="Write a comment..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading
+                                ? "..."
+                                : "Comment"}
+                        </Button>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "..." : "Comment"}
-            </Button>
-          </div>
-        </Form>
-      </Card.Body>
-    </Card>
-  );
+                    </div>
+
+                </Form>
+
+            </Card.Body>
+
+        </Card>
+    );
 };
 
 export default PostCard;

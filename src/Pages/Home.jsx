@@ -11,28 +11,26 @@ const Home = ({ currentUser }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchPosts = async () => {
-        try {
-            setLoading(true);
+    try {
+        setLoading(true);
 
-            const response = await getAllPosts();
+        const response = await getAllPosts();
 
-            setPosts(response.data || []);
+        setPosts(response.data || []);
 
-            // Success toaster
-            toast.success("Posts loaded successfully!");
-        } catch (error) {
-            console.error("Get Posts Error:", error);
+    } catch (error) {
+        console.error("Get Posts Error:", error);
 
-            const errorMessage =
-                error.response?.data?.message ||
-                "Failed to fetch posts";
+        const errorMessage =
+            error.response?.data?.message ||
+            "Failed to fetch posts";
 
-            // Error toaster
-            toast.error(errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
+        toast.error(errorMessage);
+
+    } finally {
+        setLoading(false);
+    }
+};
 
     useEffect(() => {
         fetchPosts();
@@ -42,7 +40,7 @@ const Home = ({ currentUser }) => {
         setPosts((prev) => [newPost, ...prev]);
 
         // Success toaster
-        toast.success("Post created successfully!");
+        // toast.success("Post created successfully!");
     };
 
     const handleDelete = (id) => {
