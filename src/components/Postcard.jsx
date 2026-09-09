@@ -17,11 +17,9 @@ const PostCard = ({ post, currentUser, onDelete }) => {
 
       console.log("LIKE RESPONSE:", response);
 
-      // Agar backend updated post return karta hai
       if (response?.data) {
         setCurrentPost(response.data);
       } else {
-        // Agar backend post return nahi karta
         setCurrentPost((prev) => {
           const alreadyLiked = prev.likes?.some(
             (user) => user._id === currentUser?._id,
@@ -34,15 +32,16 @@ const PostCard = ({ post, currentUser, onDelete }) => {
               : [...(prev.likes || []), currentUser],
           };
         });
-
-        toast.success(
-          isLiked ? "Post unliked successfully!" : "Post liked successfully!",
-        );
       }
+
+      // ✅ Toaster yahan rakho — if/else ke bahar
+      toast.success(
+        isLiked ? "Post unliked successfully!" : "Post liked successfully!",
+      );
     } catch (error) {
       console.error("LIKE ERROR:", error);
 
-      alert(error?.response?.data?.message || "Like failed");
+      toast.error(error?.response?.data?.message || "Like failed");
     }
   };
 
@@ -86,7 +85,7 @@ const PostCard = ({ post, currentUser, onDelete }) => {
     } catch (error) {
       console.error("COMMENT ERROR:", error);
 
-      alert(error?.response?.data?.message || "Comment failed");
+      toast.error(error?.response?.data?.message || "Comment failed");
     } finally {
       setLoading(false);
     }
