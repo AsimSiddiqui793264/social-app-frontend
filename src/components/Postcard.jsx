@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Card, Button, Form } from "react-bootstrap";
+import { toast } from "react-toastify";
 import {
     likeUnlikePost,
     addComment,
@@ -44,6 +45,13 @@ const PostCard = ({ post, currentUser, onDelete }) => {
                             ],
                     };
                 });
+
+toast.success(
+    isLiked
+        ? "Post unliked successfully!"
+        : "Post liked successfully!"
+);
+
             }
 
         } catch (error) {
@@ -69,6 +77,8 @@ const PostCard = ({ post, currentUser, onDelete }) => {
                 currentPost._id,
                 comment
             );
+
+toast.success("Comment added successfully!");
 
             console.log("COMMENT RESPONSE:", response);
 
