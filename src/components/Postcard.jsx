@@ -104,7 +104,7 @@ const PostCard = ({ post, currentUser, onDelete }) => {
 
       onDelete(currentPost._id);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Delete failed");
+      alert(error?.response?.data?.message || "Delete failed");
     }
   };
 
