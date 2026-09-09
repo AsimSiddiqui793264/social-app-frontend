@@ -1,98 +1,113 @@
 import React, { useState } from "react";
-import { Card, Form, Button, Alert } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Card, Form, Button } from "react-bootstrap";
 import { createPost } from "../services/postApi.js";
 import { toast } from "react-toastify";
 
-const CreatePost = () => {
-  const [caption, setCaption] = useState("");
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+const CreatePost = ({ onPostCreated }) => {
+    const [caption, setCaption] = useState("");
+    const [file, setFile] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+        if (!file) {
+            toast.error("Please select an image");
+            return;
+        }
 
-    if (!file) {
-      toast.error("Please select an image");
-      return;
-    }
+        if (!caption.trim()) {
+            toast.error("Caption cannot be empty");
+            return;
+        }
 
-    if(!caption.trim()){
-        toast.error("Caption cannot be empty");
-        return;
-    }
+        try {
+            setLoading(true);
 
-    try {
-      setLoading(true);
-      setError("");
+            const formData = new FormData();
 
-      const formData = new FormData();
+            formData.append("caption", caption);
+            formData.append("post", file);
 
-      formData.append("caption", caption);
-      formData.append("post", file);
+            const response = await createPost(formData);
 
-      const response = await createPost(formData);
+            console.log("CREATE POST RESPONSE:", response);
 
-      console.log("CREATE POST RESPONSE:", response);
+            // Backend response se created post
+            const newPost = response?.data;
 
-      toast.success(response?.message || "Post created successfully!");
+            // Home.jsx ko new post bhejo
+            if (onPostCreated && newPost) {
+                onPostCreated(newPost);
+            }
 
-      // Post successfully created
-      setCaption("");
-      setFile(null);
-      e.target.reset();
+            setCaption("");
+            setFile(null);
+            e.target.reset();
 
-      // Go back to Home
-      navigate("/home");
-    } catch (error) {
-      console.log("CREATE POST ERROR:", error);
-      console.log("SERVER RESPONSE:", error?.response?.data);
+            toast.success(
+                response?.message || "Post created successfully!"
+            );
 
-      toast.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to create post",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+        } catch (error) {
+            console.log("CREATE POST ERROR:", error);
+            console.log(
+                "SERVER RESPONSE:",
+                error?.response?.data
+            );
 
-  return (
-    <Card className="mb-4 shadow-sm">
-      <Card.Body>
-        <Card.Title>Create Post</Card.Title>
+            toast.error(
+                error?.response?.data?.message ||
+                error?.message ||
+                "Failed to create post"
+            );
 
-        {error && <Alert variant="danger">{error}</Alert>}
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="What's on your mind?"
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-            />
-          </Form.Group>
+    return (
+        <Card className="mb-4 shadow-sm">
+            <Card.Body>
 
-          <Form.Group className="mb-3">
-            <Form.Control
-              type="file"
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files[0])}
-            />
-          </Form.Group>
+                <Card.Title>Create Post</Card.Title>
 
-          <Button type="submit" disabled={loading}>
-            {loading ? "Uploading..." : "Post"}
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
-  );
+                <Form onSubmit={handleSubmit}>
+
+                    <Form.Group className="mb-3">
+                        <Form.Control
+                            type="text"
+                            placeholder="What's on your mind?"
+                            value={caption}
+                            onChange={(e) =>
+                                setCaption(e.target.value)
+                            }
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Control
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                                setFile(e.target.files[0])
+                            }
+                        />
+                    </Form.Group>
+
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                    >
+                        {loading ? "Uploading..." : "Post"}
+                    </Button>
+
+                </Form>
+
+            </Card.Body>
+        </Card>
+    );
 };
 
 export default CreatePost;
