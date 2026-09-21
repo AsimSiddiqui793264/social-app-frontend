@@ -12,38 +12,47 @@ const PostCard = ({ post, currentUser, onDelete }) => {
 
   // LIKE / UNLIKE
   const handleLike = async () => {
-    try {
-      const response = await likeUnlikePost(currentPost._id);
+  try {
+    const wasLiked = currentPost.likes?.some(
+      (user) => user._id === currentUser?._id
+    );
 
-      console.log("LIKE RESPONSE:", response);
+    const response = await likeUnlikePost(currentPost._id);
 
-      if (response?.data) {
-        setCurrentPost(response.data);
-      } else {
-        setCurrentPost((prev) => {
-          const alreadyLiked = prev.likes?.some(
-            (user) => user._id === currentUser?._id,
-          );
+    console.log("LIKE RESPONSE:", response);
 
-          return {
-            ...prev,
-            likes: alreadyLiked
-              ? prev.likes.filter((user) => user._id !== currentUser?._id)
-              : [...(prev.likes || []), currentUser],
-          };
-        });
-      }
+    if (response?.data) {
+      setCurrentPost(response.data);
+    } else {
+      setCurrentPost((prev) => {
+        const alreadyLiked = prev.likes?.some(
+          (user) => user._id === currentUser?._id
+        );
 
-      // ✅ Toaster yahan rakho — if/else ke bahar
-      toast.success(
-        isLiked ? "Post unliked successfully!" : "Post liked successfully!",
-      );
-    } catch (error) {
-      console.error("LIKE ERROR:", error);
-
-      toast.error(error?.response?.data?.message || "Like failed");
+        return {
+          ...prev,
+          likes: alreadyLiked
+            ? prev.likes.filter(
+                (user) => user._id !== currentUser?._id
+              )
+            : [...(prev.likes || []), currentUser],
+        };
+      });
     }
-  };
+
+    toast.success(
+      wasLiked
+        ? "Post unliked successfully!"
+        : "Post liked successfully!"
+    );
+  } catch (error) {
+    console.error("LIKE ERROR:", error);
+
+    toast.error(
+      error?.response?.data?.message || "Like failed"
+    );
+  }
+};
 
   // ADD COMMENT
   const handleComment = async (e) => {
@@ -118,21 +127,47 @@ const PostCard = ({ post, currentUser, onDelete }) => {
     <Card className="mb-4 shadow-sm">
       <Card.Body>
         {/* USER */}
-        <div className="d-flex justify-content-between mb-3">
-          <div>
-            <strong>{currentPost.owner?.name}</strong>
+<div className="d-flex justify-content-between align-items-start mb-3">
+  <div className="d-flex align-items-center gap-2">
+    
+    {/* DP */}
+    <img
+      src={
+        currentPost.owner?.avatar ||
+        "https://via.placeholder.com/50"
+      }
+      alt="Profile"
+      style={{
+        width: "50px",
+        height: "50px",
+        borderRadius: "50%",
+        objectFit: "cover",
+      }}
+    />
 
-            <br />
+    {/* USER INFO */}
+    <div>
+      <strong className="d-block">
+        {currentPost.owner?.fullName || "User"}
+      </strong>
 
-            <small className="text-muted">{currentPost.owner?.email}</small>
-          </div>
+      <small className="text-muted d-block">
+        {currentPost.owner?.email}
+      </small>
+    </div>
+  </div>
 
-          {isOwner && (
-            <Button variant="outline-danger" size="sm" onClick={handleDelete}>
-              Delete
-            </Button>
-          )}
-        </div>
+  {/* DELETE */}
+  {isOwner && (
+    <Button
+      variant="outline-danger"
+      size="sm"
+      onClick={handleDelete}
+    >
+      Delete
+    </Button>
+  )}
+</div>
 
         {/* IMAGE */}
         <Card.Img
