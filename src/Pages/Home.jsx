@@ -1,91 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Container, Spinner } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import CreatePost from "../components/CreatePost.jsx";
 import PostCard from "../components/Postcard.jsx";
-import { getAllPosts } from "../services/postApi";
+import { fetchPosts } from "../features/posts/postSlice";
 
-const Home = ({ currentUser }) => {
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+const Home = () => {
+  const dispatch = useDispatch();
 
-    const fetchPosts = async () => {
-    try {
-        setLoading(true);
+  const posts = useSelector(
+    (state) => state.posts.posts
+  );
 
-        const response = await getAllPosts();
+  const loading = useSelector(
+    (state) => state.posts.loading
+  );
 
-        setPosts(response.data || []);
+  const error = useSelector(
+    (state) => state.posts.error
+  );
 
-    } catch (error) {
-        console.error("Get Posts Error:", error);
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
-        const errorMessage =
-            error.response?.data?.message ||
-            "Failed to fetch posts";
-
-        toast.error(errorMessage);
-
-    } finally {
-        setLoading(false);
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
     }
-};
+  }, [error]);
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
+  return (
+    <Container
+      style={{
+        maxWidth: "700px",
+      }}
+      className="mt-4"
+    >
+      <CreatePost />
 
-    const handlePostCreated = (newPost) => {
-        setPosts((prev) => [newPost, ...prev]);
+      {loading && (
+        <div className="text-center">
+          <Spinner />
+        </div>
+      )}
 
-        // Success toaster
-        // toast.success("Post created successfully!");
-    };
+      {!loading && posts.length === 0 && (
+        <div className="text-center mt-3">
+          No posts available.
+        </div>
+      )}
 
-    const handleDelete = (id) => {
-        setPosts((prev) =>
-            prev.filter((post) => post._id !== id)
-        );
-
-        // Success toaster
-        toast.success("Post deleted successfully!");
-    };
-
-    return (
-        <Container
-            style={{
-                maxWidth: "700px",
-            }}
-            className="mt-4"
-        >
-            <CreatePost
-                onPostCreated={handlePostCreated}
-            />
-
-            {loading && (
-                <div className="text-center">
-                    <Spinner />
-                </div>
-            )}
-
-            {!loading && posts.length === 0 && (
-                <div className="text-center mt-3">
-                    No posts available.
-                </div>
-            )}
-
-            {!loading &&
-                posts.map((post) => (
-                    <PostCard
-                        key={post._id}
-                        post={post}
-                        currentUser={currentUser}
-                        onDelete={handleDelete}
-                    />
-                ))}
-        </Container>
-    );
+      {!loading &&
+        posts.map((post) => (
+          <PostCard
+            key={post._id}
+            post={post}
+          />
+        ))}
+    </Container>
+  );
 };
 
 export default Home;
