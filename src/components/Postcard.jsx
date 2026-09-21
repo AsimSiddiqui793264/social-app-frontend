@@ -11,8 +11,28 @@ const PostCard = ({ post, currentUser, onDelete }) => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Local post state
   const [currentPost, setCurrentPost] = useState(post);
+
+  // =========================
+  // GET CURRENT USER ID
+  // =========================
+  const currentUserId =
+    currentUser?._id ||
+    currentUser?.id;
+
+  // =========================
+  // GET POST OWNER ID
+  // =========================
+  const ownerId =
+    typeof currentPost.owner === "object"
+      ? currentPost.owner?._id
+      : currentPost.owner;
+
+  // =========================
+  // CHECK POST OWNER
+  // =========================
+  const isOwner =
+    ownerId?.toString() === currentUserId?.toString();
 
   // =========================
   // LIKE / UNLIKE
@@ -21,10 +41,13 @@ const PostCard = ({ post, currentUser, onDelete }) => {
     try {
       const wasLiked = currentPost.likes?.some(
         (user) =>
-          user?._id?.toString() === currentUser?._id?.toString()
+          user?._id?.toString() ===
+          currentUserId?.toString()
       );
 
-      const response = await likeUnlikePost(currentPost._id);
+      const response = await likeUnlikePost(
+        currentPost._id
+      );
 
       console.log("LIKE RESPONSE:", response);
 
@@ -35,7 +58,7 @@ const PostCard = ({ post, currentUser, onDelete }) => {
           const alreadyLiked = prev.likes?.some(
             (user) =>
               user?._id?.toString() ===
-              currentUser?._id?.toString()
+              currentUserId?.toString()
           );
 
           return {
@@ -44,9 +67,12 @@ const PostCard = ({ post, currentUser, onDelete }) => {
               ? prev.likes.filter(
                   (user) =>
                     user?._id?.toString() !==
-                    currentUser?._id?.toString()
+                    currentUserId?.toString()
                 )
-              : [...(prev.likes || []), currentUser],
+              : [
+                  ...(prev.likes || []),
+                  currentUser,
+                ],
           };
         });
       }
@@ -60,7 +86,8 @@ const PostCard = ({ post, currentUser, onDelete }) => {
       console.error("LIKE ERROR:", error);
 
       toast.error(
-        error?.response?.data?.message || "Like failed"
+        error?.response?.data?.message ||
+          "Like failed"
       );
     }
   };
@@ -71,7 +98,9 @@ const PostCard = ({ post, currentUser, onDelete }) => {
   const handleComment = async (e) => {
     e.preventDefault();
 
-    if (!comment.trim()) return;
+    if (!comment.trim()) {
+      return;
+    }
 
     try {
       setLoading(true);
@@ -81,30 +110,28 @@ const PostCard = ({ post, currentUser, onDelete }) => {
         comment.trim()
       );
 
-      console.log("COMMENT RESPONSE:", response);
+      console.log(
+        "COMMENT RESPONSE:",
+        response
+      );
 
-      toast.success("Comment added successfully!");
+      toast.success(
+        "Comment added successfully!"
+      );
 
       setComment("");
 
-      // Backend returns updated + populated post
       if (response?.data) {
         setCurrentPost(response.data);
       } else {
-        // Fallback
         const newComment = {
           _id: Date.now(),
-
-          // Complete logged-in user
           user: currentUser,
-
-          // Keep name for backward compatibility
           name:
             currentUser?.fullName ||
             currentUser?.name ||
             currentUser?.username ||
             "User",
-
           comment: comment.trim(),
         };
 
@@ -117,10 +144,14 @@ const PostCard = ({ post, currentUser, onDelete }) => {
         }));
       }
     } catch (error) {
-      console.error("COMMENT ERROR:", error);
+      console.error(
+        "COMMENT ERROR:",
+        error
+      );
 
       toast.error(
-        error?.response?.data?.message || "Comment failed"
+        error?.response?.data?.message ||
+          "Comment failed"
       );
     } finally {
       setLoading(false);
@@ -135,56 +166,53 @@ const PostCard = ({ post, currentUser, onDelete }) => {
       "Are you sure you want to delete this post?"
     );
 
-    if (!confirmDelete) return;
+    if (!confirmDelete) {
+      return;
+    }
 
     try {
       await deletePost(currentPost._id);
 
-      toast.success("Post deleted successfully!");
+      toast.success(
+        "Post deleted successfully!"
+      );
 
-      onDelete(currentPost._id);
+      if (onDelete) {
+        onDelete(currentPost._id);
+      }
     } catch (error) {
-      console.error("DELETE ERROR:", error);
+      console.error(
+        "DELETE ERROR:",
+        error
+      );
 
       toast.error(
-        error?.response?.data?.message || "Delete failed"
+        error?.response?.data?.message ||
+          "Delete failed"
       );
     }
   };
 
   // =========================
-  // IS LIKED
+  // CHECK LIKE
   // =========================
   const isLiked = currentPost.likes?.some(
     (user) =>
-      user?._id?.toString() === currentUser?._id?.toString()
+      user?._id?.toString() ===
+      currentUserId?.toString()
   );
-
-  // =========================
-  // IS OWNER
-  // =========================
-  const ownerId =
-    typeof currentPost.owner === "object"
-      ? currentPost.owner?._id
-      : currentPost.owner;
-
-  const currentUserId = currentUser?._id;
-
-  const isOwner =
-    ownerId?.toString() === currentUserId?.toString();
 
   return (
     <Card className="mb-4 shadow-sm">
       <Card.Body>
 
         {/* =========================
-            USER / POST OWNER
-        ========================== */}
+            POST OWNER HEADER
+        ========================= */}
         <div className="d-flex justify-content-between align-items-start mb-3">
 
           <div className="d-flex align-items-center gap-2">
 
-            {/* PROFILE IMAGE */}
             <img
               src={
                 currentPost.owner?.avatar ||
@@ -199,10 +227,11 @@ const PostCard = ({ post, currentUser, onDelete }) => {
               }}
             />
 
-            {/* USER DETAILS */}
             <div>
+
               <strong className="d-block">
-                {currentPost.owner?.fullName || "User"}
+                {currentPost.owner?.fullName ||
+                  "User"}
               </strong>
 
               <small className="text-muted d-block">
@@ -212,13 +241,17 @@ const PostCard = ({ post, currentUser, onDelete }) => {
               </small>
 
               <small className="text-muted d-block">
-                {currentPost.owner?.email || ""}
+                {currentPost.owner?.email ||
+                  ""}
               </small>
-            </div>
 
+            </div>
           </div>
 
-          {/* DELETE BUTTON */}
+          {/* =========================
+              DELETE BUTTON
+          ========================= */}
+
           {isOwner && (
             <Button
               variant="outline-danger"
@@ -233,7 +266,8 @@ const PostCard = ({ post, currentUser, onDelete }) => {
 
         {/* =========================
             POST IMAGE
-        ========================== */}
+        ========================= */}
+
         <Card.Img
           src={currentPost.post?.secure_url}
           alt="Post"
@@ -246,97 +280,116 @@ const PostCard = ({ post, currentUser, onDelete }) => {
 
         {/* =========================
             CAPTION
-        ========================== */}
+        ========================= */}
+
         <Card.Text className="mt-3">
           {currentPost.caption}
         </Card.Text>
 
         {/* =========================
-            LIKE
-        ========================== */}
+            LIKE BUTTON
+        ========================= */}
+
         <div className="mb-3">
+
           <Button
             variant={
-              isLiked ? "danger" : "outline-danger"
+              isLiked
+                ? "danger"
+                : "outline-danger"
             }
             onClick={handleLike}
           >
             ❤️ {currentPost.likes?.length || 0}
           </Button>
+
         </div>
+
+        <hr />
 
         {/* =========================
             COMMENTS
-        ========================== */}
-        <hr />
+        ========================= */}
 
         <h6>Comments</h6>
 
         {currentPost.comments?.length > 0 ? (
-          currentPost.comments.map((item, index) => (
-            <div
-              key={item._id || index}
-              className="border rounded p-2 mb-2"
-            >
 
-              {/* COMMENT USER */}
-              <div className="d-flex align-items-center gap-2">
+          currentPost.comments.map(
+            (item, index) => (
 
-                {/* COMMENT DP */}
-                <img
-                  src={
-                    item.user?.avatar ||
-                    "https://via.placeholder.com/40"
-                  }
-                  alt="Profile"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                  }}
-                />
+              <div
+                key={
+                  item._id || index
+                }
+                className="border rounded p-2 mb-2"
+              >
 
-                {/* COMMENT USER DETAILS */}
-                <div>
+                {/* COMMENT USER */}
 
-                  <strong className="d-block">
-                    {item.user?.fullName ||
-                      item.name ||
-                      "User"}
-                  </strong>
+                <div className="d-flex align-items-center gap-2">
 
-                  <small className="text-muted d-block">
-                    {item.user?.username
-                      ? `@${item.user.username}`
-                      : ""}
-                  </small>
+                  <img
+                    src={
+                      item.user?.avatar ||
+                      "https://via.placeholder.com/40"
+                    }
+                    alt="Profile"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
 
-                  <small className="text-muted d-block">
-                    {item.user?.email || ""}
-                  </small>
+                  <div>
+
+                    <strong className="d-block">
+                      {item.user?.fullName ||
+                        item.name ||
+                        "User"}
+                    </strong>
+
+                    <small className="text-muted d-block">
+                      {item.user?.username
+                        ? `@${item.user.username}`
+                        : ""}
+                    </small>
+
+                    <small className="text-muted d-block">
+                      {item.user?.email ||
+                        ""}
+                    </small>
+
+                  </div>
 
                 </div>
 
+                {/* COMMENT TEXT */}
+
+                <p className="mb-0 mt-2">
+                  {item.comment}
+                </p>
+
               </div>
+            )
+          )
 
-              {/* COMMENT TEXT */}
-              <p className="mb-0 mt-2">
-                {item.comment}
-              </p>
-
-            </div>
-          ))
         ) : (
+
           <p className="text-muted">
             No comments yet.
           </p>
+
         )}
 
         {/* =========================
-            ADD COMMENT
-        ========================== */}
+            COMMENT FORM
+        ========================= */}
+
         <Form onSubmit={handleComment}>
+
           <div className="d-flex gap-2">
 
             <Form.Control
@@ -352,10 +405,13 @@ const PostCard = ({ post, currentUser, onDelete }) => {
               type="submit"
               disabled={loading}
             >
-              {loading ? "..." : "Comment"}
+              {loading
+                ? "..."
+                : "Comment"}
             </Button>
 
           </div>
+
         </Form>
 
       </Card.Body>
