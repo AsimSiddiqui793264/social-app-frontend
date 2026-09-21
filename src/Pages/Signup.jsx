@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const {
@@ -14,6 +15,7 @@ const Signup = () => {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
+const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -39,7 +41,7 @@ const Signup = () => {
       );
 
       console.log("Signup Response:", response.data);
-      alert(response.data.message);
+      // alert(response.data.message);
       Swal.fire({
         title: "Congratulation",
         text: response.data.message,
@@ -47,6 +49,7 @@ const Signup = () => {
       });
 
       reset();
+      navigate("/login");
     } catch (error) {
       console.log("Signup Error:", error.response?.data?.message);
 
