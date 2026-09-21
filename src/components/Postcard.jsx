@@ -121,16 +121,25 @@ const PostCard = ({ post, currentUser, onDelete }) => {
     (user) => user._id === currentUser?._id,
   );
 
-  const isOwner = currentPost.owner?._id === currentUser?._id;
+  const ownerId =
+  typeof currentPost.owner === "object"
+    ? currentPost.owner?._id
+    : currentPost.owner;
+
+const currentUserId = currentUser?._id;
+
+const isOwner = ownerId?.toString() === currentUserId?.toString();
 
   return (
     <Card className="mb-4 shadow-sm">
       <Card.Body>
         {/* USER */}
+{/* USER */}
+{/* USER */}
 <div className="d-flex justify-content-between align-items-start mb-3">
   <div className="d-flex align-items-center gap-2">
-    
-    {/* DP */}
+
+    {/* PROFILE IMAGE */}
     <img
       src={
         currentPost.owner?.avatar ||
@@ -145,11 +154,15 @@ const PostCard = ({ post, currentUser, onDelete }) => {
       }}
     />
 
-    {/* USER INFO */}
+    {/* USER DETAILS */}
     <div>
       <strong className="d-block">
         {currentPost.owner?.fullName || "User"}
       </strong>
+
+      <small className="text-muted d-block">
+        @{currentPost.owner?.username}
+      </small>
 
       <small className="text-muted d-block">
         {currentPost.owner?.email}
@@ -157,7 +170,7 @@ const PostCard = ({ post, currentUser, onDelete }) => {
     </div>
   </div>
 
-  {/* DELETE */}
+  {/* DELETE BUTTON */}
   {isOwner && (
     <Button
       variant="outline-danger"
