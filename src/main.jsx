@@ -1,16 +1,14 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 
+import { Provider } from "react-redux";
 import { store } from "./app/store";
 
-import App from "./App.jsx";
-import Layout from "./Layout.jsx";
-import Signup from "./Pages/Signup.jsx";
-import Login from "./Pages/Login.jsx";
-import Home from "./Pages/Home.jsx";
-import CreatePost from "./components/CreatePost.jsx";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
@@ -18,15 +16,24 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { ToastContainer } from "react-toastify";
 
-ReactDOM.createRoot(
-  document.getElementById("root")
-).render(
-  <React.StrictMode>
+import App from "./App.jsx";
+import Signup from "./Pages/Signup.jsx";
+import Login from "./Pages/Login.jsx";
+import Home from "./Pages/Home.jsx";
+import CreatePost from "./components/CreatePost.jsx";
+import Layout from "./Layout.jsx";
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/" element={<App />} />
+
+            <Route
+              path="/"
+              element={<App />}
+            />
 
             <Route
               path="/signup"
@@ -47,6 +54,7 @@ ReactDOM.createRoot(
               path="/create-post"
               element={<CreatePost />}
             />
+
           </Routes>
         </Layout>
       </BrowserRouter>
@@ -55,6 +63,7 @@ ReactDOM.createRoot(
         position="top-right"
         autoClose={3000}
       />
+
     </Provider>
-  </React.StrictMode>
+  </StrictMode>
 );
