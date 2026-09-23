@@ -41,19 +41,23 @@ const getUserFromResponse = (payload) => {
       (user) =>
         user &&
         typeof user === "object" &&
-        (user._id || user.id)
+        (user?._id || user?.id)
     ) || null
   );
 };
 
 const authSlice = createSlice({
   name: "auth",
+
   initialState,
+
   reducers: {
     logout: (state) => {
       state.currentUser = null;
       state.isAuthenticated = false;
+      state.loading = false;
       state.error = null;
+
       localStorage.removeItem("socialAppUser");
     },
 
@@ -74,11 +78,14 @@ const authSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+
+      // LOGIN PENDING
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
 
+      // LOGIN SUCCESS
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
@@ -94,12 +101,11 @@ const authSlice = createSlice({
             JSON.stringify(user)
           );
         } else {
-          // Login cookie is still created by the backend.
-          // User data could not be found in the login response.
           state.isAuthenticated = true;
         }
       })
 
+      // LOGIN FAILED
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

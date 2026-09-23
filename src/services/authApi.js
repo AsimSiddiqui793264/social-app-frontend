@@ -31,3 +31,15 @@ export const registerUser = async (formData) => {
 
   return response.data;
 };
+
+// Logout
+export const logoutUser = async () => {
+  const response = await axios.get(
+    `${API}/logout`,
+    {
+      withCredentials: true,
+    }
+  );
+
+  return response.data;
+};
